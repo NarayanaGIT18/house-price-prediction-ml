@@ -1,268 +1,439 @@
-# Part 1 – Data Acquisition, Cleaning and Exploratory Data Analysis
-
-## House Price Prediction using the Ames Housing Dataset (Data from Kaggle)
+# Part 1 — Data Acquisition, Cleaning, and Exploratory Analysis
 
 ## Project Overview
 
-The objective of this project is to perform data acquisition, data cleaning, and exploratory data analysis (EDA) on the Ames Housing dataset. Before building any machine learning model, it is important to understand the dataset, identify data quality issues, and explore the relationships between variables.
+This project is the first stage of an end-to-end AI/ML lifecycle. The objective of Part 1 is to acquire raw data, perform data cleaning, analyze data quality issues, explore relationships between variables, and prepare a clean dataset suitable for machine learning modeling.
 
-The dataset was loaded into a pandas DataFrame and inspected for missing values, duplicate records, incorrect data types, skewness, and outliers. Appropriate preprocessing techniques were applied, including median imputation for selected numeric columns and data type optimization. Several visualizations were created to better understand the distribution of variables and the relationships between them. Finally, a cleaned dataset (`cleaned_data.csv`) was generated for use in Part 2 of the capstone project.
-## Dataset Description
+The dataset selected for this project is the **House Prices - Advanced Regression Techniques** dataset from Kaggle.
+The dataset contains information about residential houses, including:
 
-The dataset used in this project is the **Ames Housing Dataset**, which contains detailed information about residential properties in Ames, Iowa, USA. This dataset is widely used for data analysis and machine learning because it includes a combination of numerical and categorical features that influence house prices.
+* Property characteristics
+* Location information
+* Construction details
+* Quality measurements
+* Garage, basement, and outdoor features
+* Sale price information
 
-### Dataset Summary
+The dataset contains:
 
-* **Dataset Name:** Ames Housing Dataset
-* **File Format:** CSV
-* **Total Records (Rows):** 1,460
-* **Total Features (Columns):** 81
-* **Target Variable:** `SalePrice`
-* **Numeric Features:** 38
-* **Categorical Features:** 43
+* **1460 rows**
+* **81 columns**
+* Numeric and categorical features
+* A continuous target variable: `SalePrice`
 
-### Why This Dataset Was Selected
-
-This dataset was selected because it meets all the requirements of this capstone project. It contains more than 500 records, includes both numerical and categorical variables, has a numeric target variable (`SalePrice`), and contains missing values and outliers that make it suitable for practicing data cleaning, exploratory data analysis, and machine learning techniques.
-## Data Acquisition and Data Cleaning
-
-### Data Loading
-
-The dataset was loaded into a pandas DataFrame using the `pd.read_csv()` function. After loading, the first five rows, data types, dataset shape, and general dataset information were examined to understand the structure of the data.
-
-### Missing Value Analysis
-
-A missing value analysis was performed using `df.isnull().sum()` and the percentage of missing values was calculated for every column. Columns with more than 20% missing values were identified, documented and analyzed separately because they may introduce bias. These columns included:
-
-* Alley           = 93.7% missing values
-* MasVnrType      = 59.7% missing values
-* FireplaceQu     = 47.2% missing values
-* PoolQC          = 99.5% missing values
-* Fence           = 80.7% missing values
-* MiscFeature     = 96.3% missing values
-
-For numeric columns with less than 20% missing values, the missing values were replaced using the **median** of the respective column.
-
-**Reason for choosing the median:**
-The median is less sensitive to extreme values and skewed distributions than the mean. The dataset contains skewed distributions and has outliers. Since several numerical features in this dataset are positively skewed, the median provides a more representative measure of central tendency and produces more reliable imputed values.
-
-### Duplicate Detection
-
-Duplicate records were checked using `df.duplicated().sum()`.
-
-* Duplicate rows found:  **0**
-
-Since no duplicate records were present, no rows were removed and the dataset size remained unchanged.
-
-### Data Type Optimization
-
-The Ames dataset may not actually contain an incorrectly inferred dtype, so here doesn't convert an incorrect dtype.
-
-All numeric columns were correctly inferred by pandas. Therefore, no numeric dtype correction was required. The Neighborhood column was converted from object to category to improve memory efficiency.
-
-To improve memory efficiency, repetitive text data were converted from the `object` data type to the `category` data type. The `Neighborhood` column was converted to the `category` data type because it contains a limited number of repeated values.
-
-Memory usage was measured before and after the conversion.
-
-* Memory before conversion: **3,600,842 bytes**
-* Memory after conversion: **3,218,159 bytes**
-* Memory saved: **382,683 bytes**
-
-Converting suitable columns to the `category` data type reduced memory consumption without changing the information contained in the dataset.
-## Descriptive Statistics, Skewness and Outlier Analysis
-
-### Descriptive Statistics
-
-Descriptive statistics were generated using the `df.describe()` function to summarize the numerical features in the dataset. The summary included the count, mean, standard deviation, minimum, maximum, and quartile values (25%, 50%, and 75%) for each numeric column. These statistics provide an overall understanding of the distribution and variability of the data.
-
-### Skewness Analysis
-
-The skewness of every numeric column was calculated using the `skew()` function.
-
-The columns with the highest positive skewness were:
-
-| Column   | Skewness |
-| -------- | -------: |
-| MiscVal  |    24.48 |
-| PoolArea |    14.83 |
-| LotArea  |    12.21 |
-
-The **MiscVal** column had the highest absolute skewness, indicating a highly positively skewed distribution. This means that most properties have a value close to zero for miscellaneous expenses, while a small number of properties have very large values that create a long right tail.
-
-In positively skewed data, extreme high values increase the mean more than the median. Therefore, the median is a more reliable measure of central tendency and was preferred for imputing missing values where applicable.
-
-### Outlier Detection using the IQR Method
-
-Outliers were identified using the Interquartile Range (IQR) method.
-
-The following columns were analysed:
-
-| Column    | Number of Outliers |
-| --------- | -----------------: |
-| SalePrice |                 61 |
-| LotArea   |                 69 |
-
-The detected outliers were **not removed** from the dataset because they may represent genuine high-value properties rather than data entry errors. Removing them could reduce valuable information that is important for predictive modelling.
-
-Instead, the outliers were documented and will be evaluated further during Part 2. If necessary, suitable techniques such as transformation, scaling, or capping may be applied depending on the machine learning algorithm and model performance.
-## Exploratory Data Analysis (Visualizations)
-
-Several visualizations were created to understand data distributions and relationships between variables.
-
----
-### 1. Line Plot
-
-A line plot was created using a numeric variable to observe trends across observations.
-
-This plot helps visualize how values change sequentially. Although the dataset is not time-series based, the line plot provides a general sense of variation across records.
+The dataset is suitable for this capstone because it satisfies the requirement of having more than 500 records, multiple feature types, categorical variables, and a numeric prediction target.
 
 ---
 
-### 2. Bar Chart
+# Dataset Loading and Initial Inspection
 
-A bar chart was used to compare the **average SalePrice across different Neighborhoods**.
+The dataset was loaded using pandas:
 
-The results show that certain neighborhoods such as *NoRidge* and *NridgHt* have significantly higher average house prices compared to others like *MeadowV* and *IDOTRR*.
+```python
+pd.read_csv()
+```
 
-This indicates that **Neighborhood is a strong predictive feature** for house prices.
+Initial inspection included:
 
----
+* Displaying the first five rows
+* Checking column data types
+* Checking dataset dimensions
+* Reviewing dataset information
 
-### 3. Histogram
+The initial dataset shape was:
 
-A histogram was plotted for the most skewed variable (**MiscVal**).
-
-The distribution is heavily right-skewed, meaning most values are zero while a few extreme values exist on the higher end.
-
-This confirms the earlier skewness analysis and highlights the presence of extreme outliers in the dataset.
-
----
-
-### 4. Scatter Plot
-
-A scatter plot was created between **GrLivArea (above ground living area)** and **SalePrice**.
-
-The plot shows a **positive relationship**, meaning that as living area increases, the house price generally increases as well.
-
-This suggests a strong predictive relationship between these variables.
+```
+(1460, 81)
+```
 
 ---
 
-### 5. Box Plot
+# Missing Value Analysis and Cleaning
 
-A box plot was used to visualize **SalePrice across different Neighborhoods**.
+Missing values were analyzed using:
 
-The plot shows clear differences in median house prices between neighborhoods. Some neighborhoods have higher median values and wider spread, indicating variability in property pricing.
+```python
+df.isnull().sum()
 
-This confirms that categorical location-based features are important for prediction.
+(df.isnull().sum()/df.shape[0])*100
+```
 
----
+Columns with more than 20% missing values included:
 
-### 6. Correlation Heatmap
+* Alley
+* FireplaceQu
+* PoolQC
+* Fence
+* MiscFeature
+* Several basement and garage-related features
 
-A correlation heatmap was generated using Pearson correlation.
+For this dataset, many missing values represent the absence of a feature rather than incomplete data.
 
-Strong correlations were observed between:
+Examples:
 
-* GarageCars and GarageArea (0.88)
-* GrLivArea and TotRmsAbvGrd (0.82)
-* TotalBsmtSF and 1stFlrSF (0.82)
-* OverallQual and SalePrice (0.79)
+* Missing `PoolQC` means the house does not have a pool.
+* Missing `GarageType` means the house does not have a garage.
+* Missing `Fence` means the property has no fence.
 
-These strong correlations indicate that house size, quality, and garage capacity are important factors influencing house prices.
+Therefore, these categorical missing values were replaced with:
 
-It was also observed that correlation does not imply causation, and some relationships may be influenced by hidden variables such as overall house size or construction quality.
 
-For example, larger houses naturally require larger garages. Therefore, the strong correlation between GarageCars and GarageArea is likely explained by overall house size rather than one variable directly causing the other.
+"NoFeature"
 
-## Advanced Statistical Analysis
 
-### 1. Pearson vs Spearman Correlation
+This preserves the original meaning of the data.
 
-Both Pearson and Spearman correlation matrices were computed to understand relationships between numerical variables.
+For numeric columns with less than 20% missing values, median imputation was applied.
 
-* **Pearson correlation** measures linear relationships.
-* **Spearman correlation** measures monotonic (rank-based) relationships.
+The median was selected instead of the mean because:
 
-It was observed that some variable pairs showed higher Spearman correlation compared to Pearson correlation, indicating **non-linear but consistent relationships**.
+* House price data contains extreme values and outliers.
+* The mean is sensitive to extreme observations.
+* The median provides a more robust estimate of central tendency.
 
-This suggests that some features move together in a consistent pattern, even if not in a strictly linear manner.
+After cleaning:
 
-For feature selection in modeling, Spearman correlation will also be considered because it captures relationships that Pearson may miss.
-
----
-
-### 2. Mean vs Median (Skewness Impact)
-
-For highly skewed variables, both mean and median were compared before imputation.
-
-It was observed that for skewed distributions such as **LotArea** and **SalePrice**, the mean is influenced by extreme values, whereas the median provides a more stable central value.
-
-Therefore, **median was chosen for missing value imputation**, as it better represents the central tendency in skewed distributions.
+```
+Total Remaining Missing Values: 0
+```
 
 ---
 
-### 3. Grouped Aggregation Analysis
+# Duplicate Detection and Removal
 
-A grouped analysis was performed using the **Neighborhood** feature against **SalePrice**.
+Duplicate rows were checked using:
 
-The results show clear variation in house prices across neighborhoods.
+```python
+df.duplicated().sum()
+```
 
-* Highest average price: **NoRidge**
-* Lowest average price: **MeadowV**
+Duplicate rows were removed using:
 
-The ratio between highest and lowest mean prices indicates a strong predictive signal from the Neighborhood feature.
+```python
+df.drop_duplicates()
+```
 
-The ratio of the highest group mean to the lowest group mean is 3.40, indicating a substantial difference in average house prices across neighborhoods. This suggests that the Neighborhood feature carries useful predictive information for estimating house prices.
-
-
----
-
-### Key Insight
-
-Categorical features such as Neighborhood carry strong predictive power for house prices, and should be carefully encoded and used in the machine learning model in Part 2.
-## Conclusion
-
-In this project, a complete data analysis workflow was performed on the Ames Housing dataset, starting from raw data inspection to cleaned dataset creation and exploratory data analysis.
-
-The dataset was successfully cleaned by handling missing values, optimizing data types, and removing duplicates. Exploratory analysis revealed important patterns such as the strong influence of house size, quality, and neighborhood on sale price.
-
-Key statistical techniques such as skewness analysis, outlier detection, correlation analysis, and grouped aggregation were applied to better understand the dataset structure. Visualizations further supported these findings and provided intuitive insights into variable relationships.
-
-The final output of this stage is a cleaned dataset (`cleaned_data.csv`) that is ready for machine learning modeling in Part 2.
+The dataset did not contain problematic duplicate records after cleaning.
 
 ---
 
-## Key Learnings
+# Data Type Correction and Memory Optimization
 
-* Data cleaning is essential before any modeling process
-* Median is more reliable than mean for skewed distributions
-* Neighborhood and Overall Quality are strong predictors of house price
-* Correlation analysis helps identify important relationships between variables
-* Visualization is critical for understanding data patterns
+Data types were reviewed using:
+
+```python
+df.dtypes
+```
+
+The column `MSSubClass` was converted from numeric representation to string because it represents a housing classification category rather than a continuous measurement.
+
+The column `MSZoning` was converted to categorical datatype.
+
+Memory usage comparison:
+
+Before conversion:
+
+```
+3516.45 KB
+```
+
+After conversion:
+
+```
+3507.03 KB
+```
+
+Memory reduction:
+
+```
+9.42 KB
+```
 
 ---
 
-## How to Run the Project
+# Descriptive Statistics and Skewness Analysis
 
-1. Clone or download the repository.
-2. Install required libraries:
+Descriptive statistics were generated using:
 
-   ```bash
-   pip install pandas numpy matplotlib seaborn
-   ```
-3. Place the dataset (`train.csv`) inside the `data/` folder.
-4. Open the Jupyter Notebook:
+```python
+df.describe()
+```
 
-   ```text
-   part1_eda.ipynb
-   ```
-5. Run all cells from top to bottom.
-6. The cleaned dataset and plots will be generated automatically.
+Skewness was calculated for all numeric columns.
+
+The most skewed feature identified was:
+
+```
+Column: MiscVal
+
+Skewness:
+24.4768
+```
+
+`MiscVal` has a strong positive skew.
+
+This means:
+
+* Most houses have very small or zero miscellaneous value.
+* A small number of houses have extremely large miscellaneous values.
+* The distribution contains a long right tail.
+
+For positively skewed distributions, the mean is pulled upward by extreme values. Therefore, the median is usually a better representation of the typical value.
 
 ---
 
-## Project Structure
+# Mean vs Median Comparison
+
+The two most skewed numeric variables were compared using:
+
+* Mean
+* Median
+
+Because the variables showed strong skewness, median-based imputation was selected where required.
+
+The median provides a more representative central value when extreme observations exist.
+
+---
+
+# Outlier Detection Using IQR Method
+
+Outliers were identified using:
+
+* Q1 = 25th percentile
+* Q3 = 75th percentile
+* IQR = Q3 - Q1
+* Lower bound = Q1 - 1.5 × IQR
+* Upper bound = Q3 + 1.5 × IQR
+
+Two variables were analyzed.
+
+## SalePrice
+
+Number of outliers:
+
+```
+61
+```
+
+SalePrice contains high-value properties that naturally exist in the housing market. These observations were retained because they may represent genuine expensive houses rather than data errors.
+
+## GrLivArea
+
+Number of outliers:
+
+```
+31
+```
+
+Large living areas may represent luxury properties. These values were retained for further analysis and will be considered during model development in Part 2.
+
+---
+
+# Data Visualization Analysis
+
+## 1. Line Plot
+
+A line plot was created using SalePrice across dataset row index.
+
+Purpose:
+
+* Observe price variation across records.
+
+---
+
+## 2. Bar Chart
+
+Average SalePrice was compared across Neighborhood categories.
+
+Observation:
+
+* Different neighborhoods show significant differences in average house prices.
+
+This indicates location is an important factor for prediction.
+
+---
+
+## 3. Histogram
+
+Histogram of the most skewed feature:
+
+```
+MiscVal
+```
+
+Observation:
+
+The distribution is highly right-skewed because most values are zero while a few properties contain large miscellaneous values.
+
+---
+
+## 4. Scatter Plot
+
+Scatter plot:
+
+```
+GrLivArea vs SalePrice
+```
+
+Observation:
+
+A positive relationship exists between above-ground living area and sale price.
+
+Generally:
+
+* Larger living areas correspond to higher prices.
+* The relationship is not perfectly linear because other factors influence price, such as quality and location.
+
+---
+
+## 5. Box Plot
+
+Box plot:
+
+```
+OverallQual vs SalePrice
+```
+
+Observation:
+
+Higher quality ratings generally correspond to higher sale prices.
+
+The median price increases as overall quality increases, showing that house quality is an important predictive feature.
+
+---
+
+# Pearson Correlation Analysis
+
+A Pearson correlation matrix was calculated using:
+
+```python
+df.corr()
+```
+
+##In the House Prices dataset because it has many numeric columns (around 38 numeric features). When we display all correlations with annot=True, every cell shows a value, so the labels overlap and become unreadable. so make it readable by selecting the most important correlated features. Instead of: 38 x 38 = 1444 cells it shows: 15 x 15 = 225 cells. only for readability. for analysis used all parameters.
+
+The strongest correlation was:
+
+```
+GarageCars and GarageArea
+
+Correlation:
+0.8825
+```
+
+This indicates a strong positive linear relationship.
+
+However, correlation does not prove causation.
+
+A possible explanation is that both variables are influenced by a third factor:
+
+```
+Overall house size
+```
+
+Larger houses often have both:
+
+* Larger garage areas
+* More garage capacity
+
+---
+
+# Spearman Correlation Analysis
+
+Spearman rank correlation was calculated using:
+
+```python
+df.corr(method='spearman')
+```
+
+The largest differences between Pearson and Spearman correlations were:
+
+| Variable Pair          | Difference |
+| ---------------------- | ---------: |
+| LotFrontage - LotArea  |   0.249559 |
+| BedroomAbvGr - LotArea |   0.218098 |
+| TotRmsAbvGrd - LotArea |   0.215909 |
+
+These differences indicate that some relationships may be monotonic but not perfectly linear.
+
+For Part 2 feature selection:
+
+* Pearson correlation will be used for identifying linear relationships.
+* Spearman correlation will provide additional insight into nonlinear monotonic relationships.
+
+---
+
+# Grouped Aggregation Analysis
+
+The dataset was grouped by:
+
+```
+Neighborhood
+```
+
+and analyzed using:
+
+```python
+mean
+std
+count
+```
+
+Results:
+
+Highest average SalePrice group:
+
+```
+NoRidge
+```
+
+Highest standard deviation group:
+
+```
+NoRidge
+```
+
+Mean price ratio:
+
+```
+3.40
+```
+
+This indicates neighborhood contains meaningful predictive information.
+
+However, the high within-group standard deviation shows that neighborhood alone cannot fully predict house price because properties within the same area can vary significantly.
+
+---
+
+# Output Dataset
+
+The cleaned dataset was saved as:
+
+```
+cleaned_data.csv
+```
+
+using:
+
+```python
+df.to_csv('cleaned_data.csv', index=False)
+```
+
+Final dataset:
+
+```
+Shape:
+(1460, 81)
+
+Missing Values:
+0
+```
+
+This cleaned dataset will be used in Part 2 for supervised machine learning.
+
+---
+
+# Project Structure
 
 ```
 part1/
@@ -278,16 +449,43 @@ part1/
 │   ├── box_plot.png
 │   └── correlation_heatmap.png
 │
-├── cleaned_data.csv
 ├── part1_eda.ipynb
+│
+├── cleaned_data.csv
+│
 └── README.md
 ```
 
 ---
 
-## Final Note
+# How to Run
 
-This completes Part 1 of the Capstone Project. The dataset has been successfully cleaned, explored, and analyzed. All key data quality issues such as missing values, duplicates, and outliers have been addressed, and important statistical patterns have been identified.
+Install required libraries:
 
-The resulting cleaned dataset (`cleaned_data.csv`) is now ready for Part 2.
+```bash
+pip install pandas numpy matplotlib seaborn jupyter
+```
 
+Run the notebook:
+
+```bash
+jupyter notebook part1_eda.ipynb
+```
+
+The notebook executes all steps from data loading to final cleaned dataset generation.
+
+---
+
+# Conclusion
+
+Part 1 successfully transformed raw housing data into a clean dataset through:
+
+* Missing value treatment
+* Duplicate removal
+* Data type optimization
+* Statistical analysis
+* Outlier investigation
+* Visualization
+* Correlation analysis
+
+The resulting dataset is ready for machine learning modeling in Part 2.
