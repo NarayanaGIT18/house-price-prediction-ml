@@ -285,4 +285,14 @@ Gradient Boosting achieved the highest cross-validation ROC-AUC (0.9795), while 
 
 The tuned Random Forest pipeline is recommended as the final production model because it provides strong predictive performance, handles complex feature relationships, and can be reproduced using the saved pipeline.
 
+## Final Model Comparison
+
+| Model | CV Mean AUC | Test AUC |
+|---|---|---|
+| Logistic Regression | 0.965380 | - |
+| Controlled Decision Tree | 0.905660 | - |
+| Random Forest | 0.977681 | 0.986020 |
+| Gradient Boosting | 0.979529 | 0.981047 |
+| Tuned Random Forest | 0.977916 | - |
+
 The final model provides a good balance between predictive accuracy, robustness, and deployment reliability.
